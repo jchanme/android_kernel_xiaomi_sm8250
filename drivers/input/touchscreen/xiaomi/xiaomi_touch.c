@@ -183,6 +183,7 @@ int xiaomitouch_register_modedata(struct xiaomi_touch_interface *data)
 	touch_data->panel_display_read = data->panel_display_read;
 	touch_data->touch_vendor_read = data->touch_vendor_read;
 	touch_data->setModeLongValue = data->setModeLongValue;
+	touch_data->get_touch_super_resolution_factor = data->get_touch_super_resolution_factor;
 #if XIAOMI_ROI
 	touch_data->partial_diff_data_read = data->partial_diff_data_read;
 #endif
@@ -450,6 +451,20 @@ static ssize_t xiaomi_touch_log_debug_store(struct device *dev,
 	return count;
 }
 
+static ssize_t resolution_factor_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	int factor = 1;
+
+	if (!touch_pdata) {
+		return -ENODEV;
+	}
+	if (touch_pdata->touch_data->get_touch_super_resolution_factor) {
+		factor = touch_pdata->touch_data->get_touch_super_resolution_factor();
+	}
+	return snprintf(buf, PAGE_SIZE, "%d", factor);
+}
+
 static DEVICE_ATTR(palm_sensor, (S_IRUGO | S_IWUSR | S_IWGRP),
 		   palm_sensor_show, palm_sensor_store);
 
@@ -475,6 +490,7 @@ static DEVICE_ATTR(partial_diff_data, (S_IRUGO | S_IWUSR | S_IWGRP),
 	xiaomi_partial_diff_data_show, xiaomi_partial_diff_data_store);
 #endif
 
+static DEVICE_ATTR(resolution_factor, 0644, resolution_factor_show, NULL);
 
 static struct attribute *touch_attr_group[] = {
 	&dev_attr_palm_sensor.attr,
@@ -487,6 +503,7 @@ static struct attribute *touch_attr_group[] = {
 #if XIAOMI_ROI
 	&dev_attr_partial_diff_data.attr,
 #endif
+	&dev_attr_resolution_factor.attr,
 	NULL,
 };
 
@@ -513,7 +530,6 @@ static int xiaomi_touch_parse_dt(struct device *dev, struct xiaomi_touch_pdata *
 	return 0;
 }
 
-#if XIAOMI_ROI
 void xiaomi_touch_send_btn_tap_key(int status)
 {
 	if (xiaomi_touch_dev.key_input_dev) {
@@ -527,7 +543,6 @@ void xiaomi_touch_send_btn_tap_key(int status)
 	}
 }
 EXPORT_SYMBOL(xiaomi_touch_send_btn_tap_key);
-#endif
 
 static int xiaomi_touch_probe(struct platform_device *pdev)
 {
