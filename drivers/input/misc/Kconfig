@@ -10,6 +10,13 @@ menuconfig INPUT_MISC
 
 	  If unsure, say Y.
 
+config SPI_XIAOMI_TP
+        bool
+        depends on SPI
+        default y if TOUCHSCREEN_NT36xxx_HOSTDL_SPI
+        help
+        Say Y if want use xiaomi touch panel.
+
 if INPUT_MISC
 
 config INPUT_88PM860X_ONKEY
@@ -600,6 +607,16 @@ config INPUT_PWM_BEEPER
 
 	  To compile this driver as a module, choose M here: the module will be
 	  called pwm-beeper.
+
+config MOTOR_DRV8846
+        default n
+        help
+          Say Y here if you want to enable TI-drv8846 Stepper motor.
+
+config HALL_AKM09970
+        default n
+        help
+          Say Y here if you want to enable AKM09970 HALL sensor driver.
 
 config INPUT_PWM_VIBRA
 	tristate "PWM vibrator support"
