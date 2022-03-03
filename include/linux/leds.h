@@ -37,6 +37,7 @@ struct led_classdev {
 	const char		*name;
 	enum led_brightness	 brightness;
 	enum led_brightness	 max_brightness;
+	enum led_brightness usr_brightness_req;
 #ifdef CONFIG_MACH_XIAOMI_SM8250
 	enum led_brightness	 usr_brightness_req;
 #endif
